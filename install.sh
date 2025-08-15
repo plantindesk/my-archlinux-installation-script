@@ -40,6 +40,7 @@ swapoff -a || true
 echo "Wiping $DISK..."
 wipefs -a "$DISK"
 
+parted -s "$DISK" mklabel gpt
 # ----------------------------
 # PARTITIONING
 # ----------------------------
@@ -49,10 +50,10 @@ parted -s "$DISK" mklabel gpt
 
 echo "Creating EFI, Swap, and Root partitions..."
 parted -s "$DISK" \
-    mkpart "EFI system partition" fat32 1MiB 1025MiB \
+    mkpart ESP fat32 1MiB 1025MiB \
     set 1 esp on \
-    mkpart mkpart "swap partition" linux-swap 1025MiB 5121MiB \
-    mkpart mkpart "root partition" ext4 5121MiB 100%
+    mkpart mkpart linux-swap 1025MiB 5121MiB \
+    mkpart mkpart ext4 5121MiB 100%
 
 # ----------------------------
 # FORMATTING
@@ -78,7 +79,7 @@ swapon "$SWAP_PART"
 # ----------------------------
 
 echo "Installing base system with pacstrap..."
-pacstrap -K "$MOUNTPOINT" base linux linux-firmware nano base-devel iwd cfdisk grub efibootmgr parted os-prober man
+pacstrap -K "$MOUNTPOINT" base linux linux-firmware nano base-devel iwd grub efibootmgr parted os-prober man-db
 
 # ----------------------------
 # CONFIGURE SYSTEM
