@@ -15,6 +15,8 @@ LOCALE="en_US.UTF-8 UTF-8"
 LOCALE_CONF="en_US.UTF-8"
 TIMEZONE="Asia/Kolkata"
 HOSTNAME="localhost"
+MIRRORLIST_BACKUP= "/etc/pacman.d/mirrorlist.backup"
+MIRRORLIST= "/etc/pacman.d/mirrorlist"
 
 # ----------------------------
 # WARN USER
@@ -26,6 +28,15 @@ if [[ "$CONFIRM" != "YES" ]]; then
     echo "Aborted."
     exit 1
 fi
+
+
+# ----------------------------
+# UPDATING MIRRORS
+# ----------------------------
+pacman -Sy pacman-contrib
+curl -o "$MIRRORLIST_BACKUP" "https://archlinux.org/mirrorlist/?country=IN&protocol=http&protocol=https&ip_version=4&use_mirror_status=on"
+sed -i -E 's|^#(Server = https://.*)|\1|' "$MIRRORLIST_BACKUP"
+rankmirrors -n 6 "$MIRRORLIST_BACKUP" > "$MIRRORLIST"
 
 # ----------------------------
 # UNMOUNT AND WIPE
@@ -79,7 +90,7 @@ swapon "$SWAP_PART"
 # ----------------------------
 
 echo "Installing base system with pacstrap..."
-pacstrap -K "$MOUNTPOINT" base linux linux-firmware nano base-devel iwd grub efibootmgr parted os-prober man-db
+pacstrap -K "$MOUNTPOINT" base linux linux-firmware nano base-devel iwd grub efibootmgr parted os-prober man-db pacman-contrib
 
 # ----------------------------
 # CONFIGURE SYSTEM
