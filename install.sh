@@ -96,6 +96,22 @@ mkdir -p "$MOUNTPOINT/boot"
 mount "$EFI_PART" "$MOUNTPOINT/boot"
 swapon "$SWAP_PART"
 
+# ----------------------------
+# SET ROOT PASSWORD
+# ----------------------------
+echo "Set root password for the new system:"
+while true; do
+    read -s -p "Enter password: " ROOT_PASSWORD; echo
+    read -s -p "Confirm password: " ROOT_PASSWORD_CONFIRM; echo
+    if [[ "$ROOT_PASSWORD" == "$ROOT_PASSWORD_CONFIRM" ]]; then
+        break
+    else
+        echo "Passwords do not match. Please try again."
+    fi
+done
+
+
+
 cat << EOF
 # ----------------------------
 # BASE SYSTEM INSTALL
@@ -116,12 +132,13 @@ genfstab -U "$MOUNTPOINT" >> "$MOUNTPOINT/etc/fstab"
 echo "Configuring chroot environment..."
 
 # Pass necessary variables into the chroot environment
-arch-chroot "$MOUNTPOINT" /bin/bash -s -- "$TIMEZONE" "$LOCALE" "$LOCALE_CONF" "$HOSTNAME" <<'EOF'
+arch-chroot "$MOUNTPOINT" /bin/bash -s -- "$TIMEZONE" "$LOCALE" "$LOCALE_CONF" "$HOSTNAME" "$ROOT_PASSWORD" <<'EOF'
 # Assign the passed arguments to variables inside the chroot
 TIMEZONE="$1"
 LOCALE="$2"
 LOCALE_CONF="$3"
 HOSTNAME="$4"
+ROOT_PASSWORD="$5"
 
 set -euo pipefail
 
@@ -134,15 +151,8 @@ locale-gen
 echo "LANG=${LOCALE_CONF}" > /etc/locale.conf
 echo "${HOSTNAME}" > /etc/hostname
 
-# Set root password
-echo "Set root password:"
-while true; do
-    read -s -p "Password: " p1; echo
-    read -s -p "Confirm: " p2; echo
-    [[ "$p1" == "$p2" ]] && break
-    echo "Passwords do not match. Try again."
-done
-echo "root:$p1" | chpasswd
+echo "Setting root password..."
+echo "root:${ROOT_PASSWORD}" | chpasswd
 
 # Install and configure GRUB
 echo "Installing GRUB bootloader..."
