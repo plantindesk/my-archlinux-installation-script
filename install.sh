@@ -118,7 +118,7 @@ cat << EOF
 # ----------------------------
 EOF
 echo "Installing base system with pacstrap..."
-pacstrap -K "$MOUNTPOINT" base linux linux-firmware nano base-devel iwd grub efibootmgr parted os-prober man-db pacman-contrib
+pacstrap -K "$MOUNTPOINT" base linux linux-firmware nano base-devel iwd grub efibootmgr parted os-prober man-db pacman-contrib dhcpcd wpa_supplicant
 
 cat << EOF
 # ----------------------------
