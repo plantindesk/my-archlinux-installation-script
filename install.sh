@@ -115,7 +115,16 @@ genfstab -U "$MOUNTPOINT" >> "$MOUNTPOINT/etc/fstab"
 
 echo "Configuring chroot environment..."
 
-arch-chroot "$MOUNTPOINT" /bin/bash <<EOF
+# Pass necessary variables into the chroot environment
+arch-chroot "$MOUNTPOINT" /bin/bash -s -- "$TIMEZONE" "$LOCALE" "$LOCALE_CONF" "$HOSTNAME" <<'EOF'
+# Assign the passed arguments to variables inside the chroot
+TIMEZONE="$1"
+LOCALE="$2"
+LOCALE_CONF="$3"
+HOSTNAME="$4"
+
+set -euo pipefail
+
 ln -sf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime
 hwclock --systohc
 
@@ -130,7 +139,7 @@ echo "Set root password:"
 while true; do
     read -s -p "Password: " p1; echo
     read -s -p "Confirm: " p2; echo
-    [[ "\$p1" == "\$p2" ]] && break
+    [[ "$p1" == "$p2" ]] && break
     echo "Passwords do not match. Try again."
 done
 echo "root:$p1" | chpasswd
