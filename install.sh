@@ -15,8 +15,8 @@ LOCALE="en_US.UTF-8 UTF-8"
 LOCALE_CONF="en_US.UTF-8"
 TIMEZONE="Asia/Kolkata"
 HOSTNAME="localhost"
-MIRRORLIST_BACKUP= "/etc/pacman.d/mirrorlist.backup"
-MIRRORLIST= "/etc/pacman.d/mirrorlist"
+MIRRORLIST_BACKUP="/etc/pacman.d/mirrorlist.backup"
+MIRRORLIST="/etc/pacman.d/mirrorlist"
 
 # ----------------------------
 # WARN USER
