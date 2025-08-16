@@ -102,21 +102,21 @@ genfstab -U "$MOUNTPOINT" >> "$MOUNTPOINT/etc/fstab"
 echo "Configuring chroot environment..."
 
 arch-chroot "$MOUNTPOINT" /bin/bash <<EOF
-ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
+ln -sf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime
 hwclock --systohc
 
 sed -i "s|^#${LOCALE}|${LOCALE}|" /etc/locale.gen
 locale-gen
 
-echo "LANG=$LOCALE_CONF" > /etc/locale.conf
-echo "$HOSTNAME" > /etc/hostname
+echo "LANG=${LOCALE_CONF}" > /etc/locale.conf
+echo "${HOSTNAME}" > /etc/hostname
 
 # Set root password
 echo "Set root password:"
 while true; do
     read -s -p "Password: " p1; echo
     read -s -p "Confirm: " p2; echo
-    [[ "$p1" == "$p2" ]] && break
+    [[ "\$p1" == "\$p2" ]] && break
     echo "Passwords do not match. Try again."
 done
 echo "root:$p1" | chpasswd
